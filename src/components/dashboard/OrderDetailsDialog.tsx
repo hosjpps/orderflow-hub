@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Copy, ExternalLink, Send, Ban, FileDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -21,6 +22,7 @@ export const OrderDetailsDialog = ({ orderId, open, onOpenChange }: OrderDetails
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+  const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
     if (open && orderId) {
@@ -84,6 +86,44 @@ export const OrderDetailsDialog = ({ orderId, open, onOpenChange }: OrderDetails
       cancelled: "bg-status-cancelled/20 text-status-cancelled",
     };
     return colors[status] || "bg-muted/20 text-muted-foreground";
+  };
+
+  const getStatusLabel = (status: string) => {
+    const labels: Record<string, string> = {
+      new: "Новый",
+      in_progress: "В работе",
+      completed: "Завершен",
+      paid: "Оплачен",
+      cancelled: "Отменен",
+    };
+    return labels[status] || status;
+  };
+
+  const handleStatusChange = async (newStatus: string) => {
+    try {
+      setUpdating(true);
+      const { error } = await supabase
+        .from("orders")
+        .update({ status: newStatus })
+        .eq("id", orderId);
+
+      if (error) throw error;
+
+      setOrder({ ...order, status: newStatus });
+      toast({
+        title: "Статус обновлен",
+        description: `Статус заказа изменен на "${getStatusLabel(newStatus)}"`,
+      });
+    } catch (error) {
+      console.error("Ошибка обновления статуса:", error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось обновить статус заказа",
+        variant: "destructive",
+      });
+    } finally {
+      setUpdating(false);
+    }
   };
 
   if (loading) {
@@ -193,9 +233,26 @@ export const OrderDetailsDialog = ({ orderId, open, onOpenChange }: OrderDetails
               </div>
               <div className="col-span-2">
                 <p className="text-sm text-muted-foreground mb-2">Статус</p>
-                <Badge className={cn("text-sm", getStatusColor(order.status))}>
-                  {order.status}
-                </Badge>
+                <Select
+                  value={order.status}
+                  onValueChange={handleStatusChange}
+                  disabled={updating}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue>
+                      <Badge className={cn("text-sm", getStatusColor(order.status))}>
+                        {getStatusLabel(order.status)}
+                      </Badge>
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="new">Новый</SelectItem>
+                    <SelectItem value="in_progress">В работе</SelectItem>
+                    <SelectItem value="completed">Завершен</SelectItem>
+                    <SelectItem value="paid">Оплачен</SelectItem>
+                    <SelectItem value="cancelled">Отменен</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="col-span-2">
                 <p className="text-sm text-muted-foreground mb-2">Описание задачи</p>

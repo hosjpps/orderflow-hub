@@ -12,7 +12,7 @@ interface ChartsSectionProps {
 }
 
 export const ChartsSection = ({ clientsData, revenueData, servicesData }: ChartsSectionProps) => {
-  const [period, setPeriod] = useState<"7d" | "30d" | "3m" | "1y">("7d");
+  const [period, setPeriod] = useState<"7d" | "30d">("7d");
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -24,8 +24,6 @@ export const ChartsSection = ({ clientsData, revenueData, servicesData }: Charts
             <TabsList className="bg-muted/50">
               <TabsTrigger value="7d" className="text-xs">7д</TabsTrigger>
               <TabsTrigger value="30d" className="text-xs">30д</TabsTrigger>
-              <TabsTrigger value="3m" className="text-xs">3м</TabsTrigger>
-              <TabsTrigger value="1y" className="text-xs">Год</TabsTrigger>
             </TabsList>
           </Tabs>
         </CardHeader>
@@ -106,7 +104,7 @@ export const ChartsSection = ({ clientsData, revenueData, servicesData }: Charts
       </Card>
 
       {/* Распределение услуг */}
-      <Card className="bg-gradient-card border-border/50">
+      <Card className="bg-gradient-card border-border/50 lg:col-span-2">
         <CardHeader>
           <CardTitle className="text-lg">Распределение услуг</CardTitle>
         </CardHeader>
@@ -141,39 +139,6 @@ export const ChartsSection = ({ clientsData, revenueData, servicesData }: Charts
               />
             </PieChart>
           </ResponsiveContainer>
-        </CardContent>
-      </Card>
-
-      {/* Тепловая карта активности */}
-      <Card className="bg-gradient-card border-border/50">
-        <CardHeader>
-          <CardTitle className="text-lg">Тепловая карта активности</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-8 gap-1">
-            {Array.from({ length: 7 }).map((_, day) => (
-              <div key={day} className="text-xs text-muted-foreground text-center">
-                {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'][day]}
-              </div>
-            ))}
-            <div></div>
-            {Array.from({ length: 24 }).map((_, hour) => (
-              Array.from({ length: 7 }).map((_, day) => {
-                const intensity = Math.random();
-                return (
-                  <div
-                    key={`${day}-${hour}`}
-                    className="aspect-square rounded transition-colors cursor-pointer hover:ring-2 hover:ring-primary"
-                    style={{
-                      backgroundColor: `hsl(217, 91%, ${60 - intensity * 30}%)`,
-                      opacity: 0.3 + intensity * 0.7
-                    }}
-                    title={`${['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'][day]} ${hour}:00`}
-                  />
-                );
-              })
-            ))}
-          </div>
         </CardContent>
       </Card>
     </div>
