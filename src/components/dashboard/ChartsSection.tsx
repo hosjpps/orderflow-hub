@@ -6,13 +6,17 @@ import { useState } from "react";
 const COLORS = ['hsl(217, 91%, 60%)', 'hsl(142, 76%, 36%)', 'hsl(38, 92%, 50%)', 'hsl(0, 84%, 60%)', 'hsl(270, 91%, 60%)'];
 
 interface ChartsSectionProps {
-  clientsData: any[];
-  revenueData: any[];
+  chartData: { date: string; count: number; amount: number }[];
   servicesData: any[];
 }
 
-export const ChartsSection = ({ clientsData, revenueData, servicesData }: ChartsSectionProps) => {
+export const ChartsSection = ({ chartData, servicesData }: ChartsSectionProps) => {
   const [period, setPeriod] = useState<"7d" | "30d">("7d");
+
+  // Фильтруем данные в зависимости от выбранного периода
+  const filteredData = period === "7d" 
+    ? chartData.slice(-7) 
+    : chartData;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -29,7 +33,7 @@ export const ChartsSection = ({ clientsData, revenueData, servicesData }: Charts
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={250}>
-            <LineChart data={clientsData}>
+            <LineChart data={filteredData}>
               <defs>
                 <linearGradient id="colorClients" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="hsl(217, 91%, 60%)" stopOpacity={0.3}/>
@@ -74,7 +78,7 @@ export const ChartsSection = ({ clientsData, revenueData, servicesData }: Charts
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={revenueData}>
+            <BarChart data={filteredData}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(217, 33%, 17%)" />
               <XAxis 
                 dataKey="date" 
