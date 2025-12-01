@@ -49,12 +49,12 @@ export const DashboardHeader = () => {
                   <Settings className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuContent align="end" className="w-56 bg-card">
                 <DropdownMenuLabel>Настройки</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Профиль</DropdownMenuItem>
-                <DropdownMenuItem>Конфигурация</DropdownMenuItem>
-                <DropdownMenuItem>Помощь</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/")}>Главная</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/clients")}>Клиенты</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/promo-codes")}>Промокоды</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 

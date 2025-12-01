@@ -18,26 +18,27 @@ const Index = () => {
     newToday: 0,
   });
 
-  // Моковые данные для графиков
-  const clientsData = [
-    { date: "25.11", count: 12 },
-    { date: "26.11", count: 19 },
-    { date: "27.11", count: 15 },
-    { date: "28.11", count: 25 },
-    { date: "29.11", count: 22 },
-    { date: "30.11", count: 30 },
-    { date: "01.12", count: 28 },
-  ];
+  // Генерация данных для графиков (30 дней)
+  const generateChartData = () => {
+    const data = [];
+    const today = new Date();
+    
+    for (let i = 29; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      const dateStr = `${date.getDate().toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+      
+      data.push({
+        date: dateStr,
+        count: Math.floor(Math.random() * 20) + 10,
+        amount: Math.floor(Math.random() * 30000) + 40000,
+      });
+    }
+    
+    return data;
+  };
 
-  const revenueData = [
-    { date: "25.11", amount: 45000 },
-    { date: "26.11", amount: 52000 },
-    { date: "27.11", amount: 48000 },
-    { date: "28.11", amount: 61000 },
-    { date: "29.11", amount: 55000 },
-    { date: "30.11", amount: 70000 },
-    { date: "01.12", amount: 68000 },
-  ];
+  const chartData = generateChartData();
 
   const servicesData = [
     { name: "Консультация", count: 45, percent: 30 },
@@ -181,8 +182,7 @@ const Index = () => {
 
         {/* Графики */}
         <ChartsSection
-          clientsData={clientsData}
-          revenueData={revenueData}
+          chartData={chartData}
           servicesData={servicesData}
         />
       </main>

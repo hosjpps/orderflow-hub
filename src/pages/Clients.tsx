@@ -6,12 +6,29 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Download, Plus } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const Clients = () => {
   const { toast } = useToast();
   const [clients, setClients] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<any>({});
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [newClient, setNewClient] = useState({
+    id: "",
+    username: "",
+    first_name: "",
+  });
 
   useEffect(() => {
     loadClients();
@@ -73,6 +90,52 @@ const Clients = () => {
     }
   };
 
+  const handleAddClient = async () => {
+    try {
+      if (!newClient.id || !newClient.username) {
+        toast({
+          title: "Ошибка",
+          description: "Заполните обязательные поля (Telegram ID и Username)",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { error } = await supabase.from("users").insert([
+        {
+          id: parseInt(newClient.id),
+          username: newClient.username,
+          first_name: newClient.first_name || null,
+        },
+      ]);
+
+      if (error) throw error;
+
+      toast({
+        title: "Успешно",
+        description: "Клиент добавлен",
+      });
+
+      setIsAddDialogOpen(false);
+      setNewClient({ id: "", username: "", first_name: "" });
+      loadClients();
+    } catch (error) {
+      console.error("Ошибка добавления клиента:", error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось добавить клиента",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleExport = () => {
+    toast({
+      title: "Экспорт",
+      description: "Функция экспорта в разработке",
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <DashboardHeader />
@@ -86,14 +149,69 @@ const Clients = () => {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline">
+            <Button variant="outline" onClick={handleExport}>
               <Download className="h-4 w-4 mr-2" />
               Экспорт
             </Button>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Добавить клиента
-            </Button>
+            
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Добавить клиента
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Добавить нового клиента</DialogTitle>
+                  <DialogDescription>
+                    Введите данные клиента из Telegram
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="telegram-id">Telegram ID *</Label>
+                    <Input
+                      id="telegram-id"
+                      type="number"
+                      placeholder="123456789"
+                      value={newClient.id}
+                      onChange={(e) =>
+                        setNewClient({ ...newClient, id: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="username">Username *</Label>
+                    <Input
+                      id="username"
+                      placeholder="@username"
+                      value={newClient.username}
+                      onChange={(e) =>
+                        setNewClient({ ...newClient, username: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="first-name">Имя</Label>
+                    <Input
+                      id="first-name"
+                      placeholder="Иван"
+                      value={newClient.first_name}
+                      onChange={(e) =>
+                        setNewClient({ ...newClient, first_name: e.target.value })
+                      }
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                    Отмена
+                  </Button>
+                  <Button onClick={handleAddClient}>Добавить</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
 
