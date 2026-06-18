@@ -1,73 +1,53 @@
-# Welcome to your Lovable project
+# OrderFlow Hub
 
-## Project info
+Админ-панель для управления заказами, клиентами и промокодами сервиса с бонусной системой кэшбэка. Бэкенд на Supabase.
 
-**URL**: https://lovable.dev/projects/24d23fea-a5fc-4036-b895-b55486434a36
+## Возможности
 
-## How can I edit this code?
+- Дашборд с ключевыми метриками: всего клиентов, активные заказы, выручка за месяц, средний чек, конверсия в оплату, новые клиенты за сегодня
+- Графики динамики заказов и выручки, распределение по типам услуг
+- Управление клиентами: профиль, бонусный баланс, сумма потраченного, блокировка
+- Управление промокодами: процент скидки, лимит и счётчик использований, активность
+- Каталог услуг с базовой ценой и параметрами
+- Автоматическое начисление 5% кэшбэка при оплате заказа (триггер в БД) и история бонусных транзакций
+- Авторизация и защищённые маршруты на Supabase Auth
 
-There are several ways of editing your application.
+## Стек
 
-**Use Lovable**
+- React 18 + TypeScript, сборка через Vite
+- Tailwind CSS + shadcn/ui (Radix UI)
+- React Router, TanStack Query, React Hook Form + Zod
+- Recharts для графиков
+- Supabase (PostgreSQL, Auth) как бэкенд
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/24d23fea-a5fc-4036-b895-b55486434a36) and start prompting.
+## Модель данных
 
-Changes made via Lovable will be committed automatically to this repo.
+PostgreSQL, миграции в `supabase/migrations`:
 
-**Use your preferred IDE**
+- `users` — клиенты: имя, username, бонусный баланс, сумма трат, флаг блокировки
+- `orders` — заказы: тип услуги, цена, скидка, использованные бонусы, итоговая цена, статус, промокод, дедлайн
+- `promo_codes` — промокоды: процент скидки, лимит и счётчик использований
+- `services` — услуги: название, описание, базовая цена, параметры
+- `bonus_transactions` — история начислений и списаний бонусов
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+При смене статуса заказа на `paid` триггер `calculate_cashback` начисляет клиенту 5% кэшбэка и обновляет его баланс.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+## Запуск
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
+# установка зависимостей
 npm i
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# переменные окружения (.env)
+# VITE_SUPABASE_URL=...
+# VITE_SUPABASE_PUBLISHABLE_KEY=...
+# VITE_SUPABASE_PROJECT_ID=...
+
+# режим разработки
 npm run dev
+
+# продакшен-сборка
+npm run build
 ```
 
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/24d23fea-a5fc-4036-b895-b55486434a36) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Применить миграции к проекту Supabase можно через Supabase CLI (`supabase db push`).
